@@ -27,7 +27,7 @@
 # First I demonstrate with S3 because they were introduced in the original version of R
 # Any functions used actually make a copy
 
-# Method 1: Functions as classes
+# Method 1: Functions as classes (S3)
 # Car = function(wheelsIn = "null", doorsIn = "null", cylindersIn = "null") {
 #   this <- list(wheels = wheelsIn, doors = doorsIn, cylinders = cylindersIn)
 #   class(this) <- append(class(this), "Car")
@@ -47,55 +47,55 @@
 ######################################################################################
 ######################################################################################
 ######################################################################################
-# Method 2: Lists as classes
+# Method 2: Lists as classes (S3)
 
-car <- list(wheels = "null", doors = "null", cylinders = "null")
-addWheels <- function(obj, wheelsIn) {
-  w = wheelsIn
-  obj$wheels = sum(obj$wheels, w)
-}
-addDoors <- function(obj, doorsIn) {
-  d = doorsIn
-  obj$doors = sum(obj$doors, d)
-}
-addCylinders <- function(obj, cylindersIn) {
-  cyl = cylindersIn
-  obj$cylinders = sum(obj$cylinders, cyl)
-}
-deleteWheels <- function(obj, wheelsIn) {
-  w = wheelsIn
-  obj$wheels = obj$wheels - w
-}
-deleteDoors <- function(obj, doorsIn) {
-  d = doorsIn
-  obj$doors = obj$doors - d
-}
-deleteCylinders <- function(obj, cylindersIn) {
-  cyl = cylindersIn
-  obj$cylinders = obj$cylinders - cyl
-}
+# car <- list(wheels = "null", doors = "null", cylinders = "null")
+# addWheels <- function(obj, wheelsIn) {
+#   w = wheelsIn
+#   obj$wheels = sum(obj$wheels, w)
+# }
+# addDoors <- function(obj, doorsIn) {
+#   d = doorsIn
+#   obj$doors = sum(obj$doors, d)
+# }
+# addCylinders <- function(obj, cylindersIn) {
+#   cyl = cylindersIn
+#   obj$cylinders = sum(obj$cylinders, cyl)
+# }
+# deleteWheels <- function(obj, wheelsIn) {
+#   w = wheelsIn
+#   obj$wheels = obj$wheels - w
+# }
+# deleteDoors <- function(obj, doorsIn) {
+#   d = doorsIn
+#   obj$doors = obj$doors - d
+# }
+# deleteCylinders <- function(obj, cylindersIn) {
+#   cyl = cylindersIn
+#   obj$cylinders = obj$cylinders - cyl
+# }
 
-cat("Creating car.", "\n")
-class(car) <- "subaru"
-subaru <- environment()
-subaru$wheels = 4
-subaru$doors = 4
-subaru$cylinders = 4
-cat("Wheel check: ", subaru$wheels, "\n")
-cat("Door check: ", subaru$doors, "\n")
-cat("Cylinder check: ", subaru$cylinders, "\n \n")
-cat("Adding wheel directly to car object.", "\n")
-subaru$wheels = 5
-cat("Wheel check: ", subaru$wheels, "\n")
-cat("Door check: ", subaru$doors, "\n")
-cat("Cylinder check: ", subaru$cylinders, "\n \n")
-cat("Removing wheel using object method.", "\n")
-deleteWheels(subaru, 1)
-cat("Wheel check: ", subaru$wheels, "\n")
-cat("Door check: ", subaru$doors, "\n")
-cat("Cylinder check: ", subaru$cylinders, "\n")
+# cat("Creating car.", "\n")
+# class(car) <- "subaru"
+# subaru <- environment()
+# subaru$wheels = 4
+# subaru$doors = 4
+# subaru$cylinders = 4
+# cat("Wheel check: ", subaru$wheels, "\n")
+# cat("Door check: ", subaru$doors, "\n")
+# cat("Cylinder check: ", subaru$cylinders, "\n \n")
+# cat("Adding wheel directly to car object.", "\n")
+# subaru$wheels = 5
+# cat("Wheel check: ", subaru$wheels, "\n")
+# cat("Door check: ", subaru$doors, "\n")
+# cat("Cylinder check: ", subaru$cylinders, "\n \n")
+# cat("Removing wheel using object method.", "\n")
+# deleteWheels(subaru, 1)
+# cat("Wheel check: ", subaru$wheels, "\n")
+# cat("Door check: ", subaru$doors, "\n")
+# cat("Cylinder check: ", subaru$cylinders, "\n")
 
-# Method 3: Lists as Independent Classes
+# Method 3: Lists as Independent Classes (S3)
 # The lines:
 # class(car) <- "subaru"
 # subaru <- environment()
@@ -145,3 +145,122 @@ cat("Cylinder check: ", subaru$cylinders, "\n")
 # cat("Wheel check: ", subaru$wheels, "\n")
 # cat("Door check: ", subaru$doors, "\n")
 # cat("Cylinder check: ", subaru$cylinders, "\n")
+
+######################################################################################CODE
+######################################################################################CODE
+######################################################################################CODE
+# Method 4: S4 Classes
+Car <- setClass(
+  "Car", slots = c(wheels = "numeric", doors = "numeric", cylinders = "numeric"),
+    prototype=list(wheels = 0, doors = 0, cylinders = 0),
+    validity=function(object){
+      if((object@wheels < 0) || (object@doors < 0) || (object@cylinders < 0)) {
+         return("A negative number for one of the objects was given.")
+      }
+      return(TRUE)
+    }
+)
+
+setGeneric(name="addWheels",
+  def=function(obj, wheelsIn){
+    standardGeneric("addWheels")
+  }
+)
+
+setMethod(f="addWheels",
+  signature="Car",
+  definition=function(obj, wheelsIn){
+    obj@wheels <- obj@wheels + wheelsIn
+    return(obj)
+  }
+)
+
+setGeneric(name="addDoors",
+  def=function(obj, doorsIn){
+    standardGeneric("addDoors")
+  }
+)
+
+setMethod(f="addDoors",
+  signature="Car",
+  definition=function(obj, doorsIn){
+    obj@doors <- obj@doors + doorsIn
+    return(obj)
+  }
+)
+
+setGeneric(name="addCylinders",
+  def=function(obj, cylindersIn){
+    standardGeneric("addCylinders")
+  }
+)
+
+setMethod(f="addCylinders",
+  signature="Car",
+  definition=function(obj, cylindersIn){
+    obj@cylinders <- obj@cylinders + cylindersIn
+    return(obj)
+  }
+)
+
+setGeneric(name="deleteWheels",
+  def=function(obj, wheelsIn){
+    standardGeneric("deleteWheels")
+  }
+)
+
+setMethod(f="deleteWheels",
+  signature="Car",
+  definition=function(obj, wheelsIn){
+    obj@wheels <- obj@wheels - wheelsIn
+    return(obj)
+  }
+)
+
+setGeneric(name="deleteDoors",
+  def=function(obj, doorsIn){
+    standardGeneric("deleteDoors")
+  }
+)
+
+setMethod(f="deleteDoors",
+  signature="Car",
+  definition=function(obj, doorsIn){
+    obj@doors <- obj@doors - doorsIn
+    return(obj)
+  }
+)
+
+setGeneric(name="deleteCylinders",
+  def=function(obj, cylindersIn){
+    standardGeneric("deleteCylinders")
+  }
+)
+
+setMethod(f="deleteCylinders",
+  signature="Car",
+  definition=function(obj, cylindersIn){
+    obj@cylinders <- obj@cylinders - cylindersIn
+    return(obj)
+  }
+)
+
+subaru <- Car(wheels=4, doors=4, cylinders=4)
+cat("Wheel check: ", subaru@wheels, "\n")
+cat("Door check: ", subaru@doors, "\n")
+cat("Cylinder check: ", subaru@cylinders, "\n \n")
+cat("Adding wheel directly to car object.", "\n")
+subaru@wheels = 5
+cat("Wheel check: ", subaru@wheels, "\n")
+cat("Door check: ", subaru@doors, "\n")
+cat("Cylinder check: ", subaru@cylinders, "\n \n")
+cat("Removing wheel using object method.", "\n")
+subaru <- deleteWheels(subaru,1)
+cat("Wheel check: ", subaru@wheels, "\n")
+cat("Door check: ", subaru@doors, "\n")
+cat("Cylinder check: ", subaru@cylinders, "\n")
+
+
+######################################################################################CODE
+######################################################################################CODE
+######################################################################################CODE
